@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 const Login = () => {
   return (
-<div className=" bg-green-950 min-w-screen min-h-screen">
+<div className=" bg-[#385230] min-w-screen min-h-screen">
 <Link to="/"><button className="flex text-white mx-4 py-4"><ArrowLeft />Back to Home </button></Link>
 <div className="flex justify-center">
     <div className="flex flex-col bg-white rounded-lg justify-center items-center  max-w-md w-full shadow-2xl p-8">
