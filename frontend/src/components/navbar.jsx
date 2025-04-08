@@ -12,7 +12,7 @@ const toggleMenuDrawer = () => {
     }
 
     return (
-        <nav className="sticky top-0 z-50 py-4 backdrop-blur-lg border-b 
+        <nav className="sticky top-0 z-50 py-4 bg-white border-b 
         border-neutral-700/80 bg-opacity-90">
             <div className="container px-4 mx-auto relative text-sm">
                 <div className="flex justify-between items-center">
