@@ -6,22 +6,22 @@ import Navbar from '../navbar.jsx'
 const Login = () => {
   return (
 <>
- {/*<Link to="/"><button className="flex text-white mx-4 py-4"><ArrowLeft />Back to Home </button></Link>*/}
 <Navbar />
 <div className=" bg-[#385230] h-screen w-screen flex justify-center items-center">
-<div className="flex justify-center">
-    <div className="flex bg-white rounded-lg justify-center items-center max-w-md w-full shadow-2xl p-8">
+<div className=" bg-white rounded-lg justify-center items-center max-w-md w-full shadow-3xl p-8">
+<Link to="/"><button className="flex text-green-800 font-semibold text-start"><ArrowLeft />Back to Home </button></Link>
+    <div className="w-full flex justify-center items-center">
     <form className="p-5 items-center justify-center">
-        <img src="/src/assets/wc.png" className="w-50 h-35 mb-3 ml-5"/>
-        <h1 className="text-center">Login</h1>
-        <div className='inputs p-4'>
-        <div className="input flex mb-4 p-4 bg-gray-400 text-black rounded-2xl">
-        <User />
-        <input type='text' className="placeholder-black" placeholder="Username" required/>
+        <img src="/src/assets/wc.png" className="w-60 h-40 mb-3"/>
+        <h1 className="text-center font-semibold text-lg">Login</h1>
+        <div className='p-4 grid grid-cols-1 gap-4'>
+        <div className="input flex mb-4 p-4 bg-gray-300 text-black rounded-2xl">
+        <User className='text-gray-400'/>
+        <input type='text' className="placeholder-gray-400 focus:outline-hidden ml-2 w-full" placeholder="Username" required/>
         </div>
-        <div className="input flex mb-4 p-4 bg-gray-400 text-black rounded-2xl">
-        <Lock />
-        <input type='text' className="placeholder-black" placeholder="Password" required/>
+        <div className="input flex mb-4 p-4 bg-gray-300 text-black rounded-2xl">
+        <Lock className='text-gray-400' />
+        <input type='text' className="placeholder-gray-400 focus:outline-hidden ml-2 w-full" placeholder="Password" required/>
         </div>
         </div>
         <div className='remember pb-10'>
