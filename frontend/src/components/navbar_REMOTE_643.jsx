@@ -6,11 +6,9 @@ import { Link } from 'react-router-dom';
 const Navbar = () => {
   const [menuDrawerUp, setMenuDrawerUp] = useState(false);
 
-const toggleMenuDrawer = () => {
+  const toggleMenuDrawer = () => {
     setMenuDrawerUp(!menuDrawerUp);
-};
-
-
+  };
 
   return (
     <nav className="sticky top-0 z-50 py-4 bg-white border-b border-neutral-200 shadow-sm">
