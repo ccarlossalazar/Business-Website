@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const Commercial = () => {
     return (
       <>
-       <section id="commercial" className="flex flex-col md:flex-row bg-[#154217] text-white px-6 py-12 md:py-0 items-center md:items-stretch min-h-[500px]">
+       <section id="commercial" className="flex flex-col md:flex-row bg-[#385230] text-white px-6 py-12 md:py-0 items-center md:items-stretch min-h-[500px]">
   {/* Image Section */}
   <div className="md:w-1/2 mb-8 md:mb-0 ml-40">
     <img src={office} alt="Office" className="rounded-lg shadow-lg w-full h-auto" />

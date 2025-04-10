@@ -8,7 +8,7 @@ const Residential = () => {
   return (
     <section id="residential" className="residential">
       {/* Residential cleaning section */}
-      <div className="flex flex-col md:flex-row items-center justify-between py-12 px-6 bg-green-800">
+      <div className="flex flex-col md:flex-row items-center justify-between py-12 px-6 bg-[#385230]">
   <div className="md:w-1/2 flex flex-col items-center text-center space-y-16">
     <h3 className="text-4xl font-semibold text-white">Residential cleaning</h3>
     <p className="text-lg text-white">Residential cleaning for your busy lifestyle</p>
