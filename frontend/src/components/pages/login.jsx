@@ -1,12 +1,10 @@
 import React from 'react'
 import {User, Lock, ArrowLeft} from 'lucide-react'
 import { Link } from 'react-router-dom'
-import Navbar from '../navbar.jsx'
 
 const Login = () => {
   return (
 <>
-<Navbar />
 <div className=" bg-[#385230] h-screen w-screen flex justify-center items-center">
 <div className=" bg-white rounded-lg justify-center items-center max-w-md w-full shadow-3xl p-8">
 <Link to="/"><button className="flex text-green-800 font-semibold text-start"><ArrowLeft />Back to Home </button></Link>
