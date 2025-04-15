@@ -20,3 +20,9 @@
      1px  1px 0 #000;
 }
 
+/* Highlight booked days in green */
+.has-booking {
+  background-color: #4ade80 !important; 
+  color: white !important;
+  border-radius: 6px;
+}

@@ -2,14 +2,15 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
- "scripts": {
-  "start": "node app.js",
-  "dev": "node server.js"
-},
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node server.js"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "react-calendar": "^5.1.0"
   }
 }
