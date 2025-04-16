@@ -33,7 +33,7 @@ const toggleMenuDrawer = () => {
               <li><a href="#detailed" className="hover:text-green-600">Detailed Cleanings</a></li>
               <li><a href="#about" className="hover:text-green-600">About</a></li>
               <li><a href="#contact" className="hover:text-green-600">Contact</a></li>
-              <li><Link to="/admin-portal" className="hover:text-green-600">Admin</Link></li>
+              <li><Link to="/admin/dashboard" className="hover:text-green-600">Admin</Link></li>
             </ul>
           </div>
 
@@ -63,7 +63,7 @@ const toggleMenuDrawer = () => {
               <li><a href="#detailed">Detailed Cleanings</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
-              <li><Link to="/admin-portal" className="hover:text-green-600">Admin</Link></li>
+              <li><Link to="/admin/dashboard" className="hover:text-green-600">Admin</Link></li>
             </ul>
             <div className="space-x-6 flex py-2 pt-5">
               <Link to="/login">

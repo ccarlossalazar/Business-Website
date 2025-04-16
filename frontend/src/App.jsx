@@ -5,7 +5,6 @@ import Estimate from './components/pages/estimate.jsx';
 import AdminDashboard from './components/pages/adminDashboard.jsx';
 import AdminUsers from './components/pages/adminUsers.jsx';
 
-
 function App() {
   return (
 <Router>

@@ -25,7 +25,7 @@ const Residential = () => {
 
       {/* Available services section */}
       <section className="py-12 px-6 bg-gray-100 text-center">
-        <h4 className="text-3xl font-semibold mb-4 text-green-600 mb-10">Available weekly, bi-weekly, monthly & seasonal</h4>
+        <h4 className="text-3xl font-semibold text-green-600 mb-10">Available weekly, bi-weekly, monthly & seasonal</h4>
         <div className="flex justify-center gap-16">
           <div className="w-120">
             <img src={bathroomImage} alt="Bathroom" className="w-full h-auto rounded-lg" />
