@@ -79,7 +79,7 @@ const CalendarWidget = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 w-full max-w-6xl mx-auto flex space-x-6 text-black">
+    <div className="bg-white rounded-lg shadow p-8 w-full max-w-6xl mx-auto flex space-x-6 text-black">
       {/* Calendar + Bookings for selected day */}
       <div className="w-1/2">
       <Calendar

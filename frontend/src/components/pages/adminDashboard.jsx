@@ -3,15 +3,19 @@ import Navbar from "../navbar.jsx"
 import CalendarWidget from "../calendar.jsx"
 
 const AdminDashboard = () => {
-    return(
-        <>
-            <Navbar />
-            <Sidebar />
-            <div className="ml-48 pt-20 min-h-screen bg-green-950 text-white flex justify-center items-center">
-                <CalendarWidget />
+    return (
+        <div>
+          <Navbar />
+          <div className="flex flex-row bg-green-950 h-screen justify-center items-center">
+            <div className="w-1/4">
+              <Sidebar />
             </div>
-        </>
-    )
-}
+                <div className="w-3/4 p-6">
+              <CalendarWidget />
+            </div>
+          </div>
+        </div>
+      )
+    }
 
 export default AdminDashboard
