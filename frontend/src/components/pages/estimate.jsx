@@ -45,7 +45,7 @@ const Estimate = () => {
             </div>
             </div>
             <div className="w-full p-5">
-            <label for="message" className="block mb-2 text-black text-start">Additional Details (Optional):</label>
+            <label htmlFor="message" className="block mb-2 text-black text-start">Additional Details (Optional):</label>
             <textarea id="message" rows="3" className="block p-2.5 w-full text-sm text-black rounded-lg bg-white focus:outline-hidden" placeholder="Anything else you would like us to know?"></textarea>
             </div>
             <div className="bg-green-800 rounded-2xl p-2 m-10">
