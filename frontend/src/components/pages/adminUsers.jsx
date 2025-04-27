@@ -12,6 +12,7 @@ const AdminUsers = () => {
             </div>
                 <div className="w-3/4 p-6">
               <h1 className="text-white">Users Table Goes Here</h1>
+              <img src="https://www.tutorialrepublic.com/snippets/designs/user-management-data-table.png" />
             </div>
           </div>
         </div>
