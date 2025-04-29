@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { db } from "../firebase";
+import { collection, addDoc, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 
 const CalendarWidget = () => {
   const [date, setDate] = useState(new Date());
-  const [bookings, setBookings] = useState({}); // { 'YYYY-MM-DD': [booking1, booking2] }
+  const [bookings, setBookings] = useState({});
   const [form, setForm] = useState({
     description: "",
     name: "",
@@ -17,6 +19,23 @@ const CalendarWidget = () => {
 
   const formattedDate = date.toISOString().split("T")[0];
   const todaysBookings = bookings[formattedDate] || [];
+
+  //  Fetch bookings from Firestore
+  const fetchBookings = async () => {
+    const querySnapshot = await getDocs(collection(db, "bookings"));
+    const data = {};
+    querySnapshot.forEach((docSnap) => {
+      const booking = docSnap.data();
+      const date = booking.date;
+      if (!data[date]) data[date] = [];
+      data[date].push({ ...booking, id: docSnap.id });
+    });
+    setBookings(data);
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +54,8 @@ const CalendarWidget = () => {
     setEditingIndex(null);
   };
 
-  const handleSave = () => {
+  //  Save to Firestore
+  const handleSave = async () => {
     if (
       !form.description ||
       !form.name ||
@@ -46,53 +66,58 @@ const CalendarWidget = () => {
     )
       return;
 
-    setBookings((prev) => {
-      const updatedBookings = [...(prev[formattedDate] || [])];
-      if (editingIndex !== null) {
-        updatedBookings[editingIndex] = { ...form };
-      } else {
-        updatedBookings.push({ ...form });
-      }
+    const bookingData = { ...form, date: formattedDate };
 
-      return { ...prev, [formattedDate]: updatedBookings };
-    });
+    if (editingIndex !== null) {
+      // Updating existing booking
+      const bookingId = todaysBookings[editingIndex].id;
+      await setDoc(doc(db, "bookings", bookingId), bookingData);
+    } else {
+      // Adding new booking
+      await addDoc(collection(db, "bookings"), bookingData);
+    }
 
+    await fetchBookings(); // Refresh bookings from Firestore
     resetForm();
   };
 
+  //  Edit (prefill the form)
   const handleEdit = (index) => {
     const booking = todaysBookings[index];
-    setForm({ ...booking });
+    setForm({
+      description: booking.description,
+      name: booking.name,
+      start: booking.start,
+      end: booking.end,
+      address: booking.address,
+      city: booking.city,
+    });
     setEditingIndex(index);
   };
 
-  const handleDelete = (index) => {
-    const updated = [...todaysBookings];
-    updated.splice(index, 1);
-
-    setBookings((prev) => ({
-      ...prev,
-      [formattedDate]: updated,
-    }));
-
+  //  Delete from Firestore
+  const handleDelete = async (index) => {
+    const bookingId = todaysBookings[index].id;
+    await deleteDoc(doc(db, "bookings", bookingId));
+    await fetchBookings(); // Refresh bookings
     resetForm();
   };
 
   return (
     <div className="bg-white rounded-lg shadow p-8 w-full max-w-6xl mx-auto flex space-x-6 text-black">
-      {/* Calendar + Bookings for selected day */}
+      {/* Left side: Calendar */}
       <div className="w-1/2">
-      <Calendar
-        onChange={setDate}
-        value={date}
-        tileClassName={({ date, view }) => {
+        <Calendar
+          onChange={setDate}
+          value={date}
+          tileClassName={({ date, view }) => {
             const d = date.toISOString().split("T")[0];
             if (view === "month" && bookings[d] && bookings[d].length > 0) {
-            return "has-booking";
+              return "has-booking";
             }
             return null;
-        }}
-       />
+          }}
+        />
         <h2 className="mt-4 font-semibold text-lg">{formattedDate}</h2>
 
         {todaysBookings.length === 0 ? (
@@ -101,11 +126,11 @@ const CalendarWidget = () => {
           <div className="mt-3 space-y-3">
             {todaysBookings.map((b, index) => (
               <div key={index} className="border p-3 rounded bg-gray-100">
-                <p><span className="font-semibold"> Description:</span> {b.description}</p>
-                <p><span className="font-semibold"> Name:</span> {b.name}</p>
-                <p><span className="font-semibold"> Time:</span> {b.start} - {b.end}</p>
-                <p><span className="font-semibold"> Address:</span> {b.address}</p>
-                <p><span className="font-semibold"> City:</span> {b.city}</p>
+                <p><span className="font-semibold">Description:</span> {b.description}</p>
+                <p><span className="font-semibold">Name:</span> {b.name}</p>
+                <p><span className="font-semibold">Time:</span> {b.start} - {b.end}</p>
+                <p><span className="font-semibold">Address:</span> {b.address}</p>
+                <p><span className="font-semibold">City:</span> {b.city}</p>
                 <div className="space-x-2 mt-2">
                   <button
                     onClick={() => handleEdit(index)}
@@ -126,7 +151,7 @@ const CalendarWidget = () => {
         )}
       </div>
 
-      {/* Right: Add/Edit Booking Form */}
+      {/* Right side: Form */}
       <div className="w-1/2 space-y-2">
         <h3 className="text-xl font-semibold mb-2">
           {editingIndex !== null ? "Edit Booking" : "Add Booking"}
