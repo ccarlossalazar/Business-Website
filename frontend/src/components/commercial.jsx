@@ -26,7 +26,7 @@ const Commercial = () => {
 
         {/* Button */}
         <Link to="/estimate">
-        <button className="mt-2 bg-white text-green-800 px-6 py-2 rounded-full text-base font-semibold hover:bg-green-100 transition">
+        <button className="mt-2 bg-white text-green-800 px-6 py-2 rounded-full text-base font-semibold hover:bg-green-50 transition">
             Get an estimate
         </button>
         </Link>

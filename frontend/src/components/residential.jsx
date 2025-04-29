@@ -13,7 +13,7 @@ const Residential = () => {
     <h3 className="text-4xl font-semibold text-white">Residential cleaning</h3>
     <p className="text-lg text-white">Residential cleaning for your busy lifestyle</p>
     <Link to="/estimate">
-      <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800">
+      <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800 hover:bg-green-50">
         Get an estimate
       </button>
     </Link>

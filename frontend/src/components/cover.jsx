@@ -10,9 +10,9 @@ const Cover = () => {
 
     {/* Buttons container */}
     <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-      <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800">CALL TODAY!</button>
+      <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800 hover:bg-gray-100">CALL TODAY!</button>
       <Link to="/estimate">
-        <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800">
+        <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800 hover:bg-gray-100">
           Estimate
         </button>
       </Link>

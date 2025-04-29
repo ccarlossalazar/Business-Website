@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import firebase from "./databaseconfig.js"
 import { get, ref } from 'firebase/database'
-import authRoute from './routes/auth.js'
 import clientRoute from './routes/clients.js'
 
 dotenv.config()
@@ -34,7 +33,6 @@ app.use(cors())
 app.use(cookieParser())
 app.use(express.json())
 
-app.use("/auth", authRoute)
 app.use("/clients", clientRoute)
 
 app.use((err,req,res,next)=>{
