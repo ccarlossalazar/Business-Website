@@ -2,7 +2,7 @@ import Logo from '/src/assets/wc.png';
 import { SquareMenu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from 'react-router-dom';
-import {auth} from '/firebase'
+import {auth} from '../firebase'
 import { signOut } from 'firebase/auth';
 
 const Navbar = () => {
@@ -58,7 +58,7 @@ const toggleMenuDrawer = () => {
           {!user && (
           <div className="hidden lg:flex justify-center space-x-12 items-center">
             <Link to="/login">
-              <button className="bg-gradient-to-r from-green-600 to-green-800 py-2 px-3 rounded-lg text-xl text-white">
+              <button className="bg-gradient-to-r from-green-600 to-green-800 py-2 px-3 rounded-lg text-xl text-white hover:bg-gradient-to-br">
                 Login
               </button>
             </Link>
@@ -95,7 +95,7 @@ const toggleMenuDrawer = () => {
           {!user && (
             <div className="space-x-6 flex py-2 pt-5">
               <Link to="/login">
-                <button className="bg-gradient-to-r from-green-600 to-green-800 py-2 px-3 rounded-md text-white">
+                <button className="bg-gradient-to-r from-green-500 to-green-700 py-2 px-3 rounded-md text-white hover:bg-gradient-to-br ">
                   Login
                 </button>
               </Link>

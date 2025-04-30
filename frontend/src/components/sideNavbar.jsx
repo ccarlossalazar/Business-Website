@@ -1,9 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, ArrowLeftToLine, LogOut, UserRoundPen, User } from 'lucide-react';
-
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 
 const Sidebar = () => {
   const location = useLocation();
+
+  const handleLogout = async () => {
+    try{
+      await signOut(auth)
+      console.log('User logged out successfully!')
+    }catch(error){
+      console.error('Error Logging Out:', error)
+    }
+    window.location.reload()
+  }
+
 
   const isActive = (path) => location.pathname === path;
 
@@ -32,14 +44,14 @@ const Sidebar = () => {
         <span>Profile</span>
         </li>
         </Link>
-        <Link to="#">
-        <li className={`text-sm flex font-semibold px-4 py-2 items-center ${isActive("#") ? "bg-green-700 text-gray-300" : "hover:bg-green-800"}`}>
+        <Link to="/">
+        <li onClick={handleLogout} className={`text-sm flex font-semibold px-4 py-2 items-center ${isActive("#") ? "bg-green-700 text-gray-300" : "hover:bg-green-800"}`}>
         <LogOut className="p-1"/>
         <span>Logout</span>
         </li>
         </Link>
         <Link to="/">
-        <li className={`text-sm flex font-semibold px-4 py-2 items-center `}>
+        <li className={`text-sm flex font-semibold px-4 py-2 items-center hover:bg-green-800 `}>
         <ArrowLeftToLine className="p-1"/>
         <span>Main Page</span>
         </li>
