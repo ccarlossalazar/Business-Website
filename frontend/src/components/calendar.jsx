@@ -2,106 +2,105 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 const CalendarWidget = () => {
   const [date, setDate] = useState(new Date());
+  const [clients, setClients] = useState([]);
   const [bookings, setBookings] = useState({});
-  const [form, setForm] = useState({
-    description: "",
-    name: "",
-    start: "",
-    end: "",
-    address: "",
-    city: "",
-  });
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [editingInfo, setEditingInfo] = useState(null);
 
   const formattedDate = date.toISOString().split("T")[0];
-  const todaysBookings = bookings[formattedDate] || [];
-
-  //  Fetch bookings from Firestore
-  const fetchBookings = async () => {
-    const querySnapshot = await getDocs(collection(db, "bookings"));
-    const data = {};
-    querySnapshot.forEach((docSnap) => {
-      const booking = docSnap.data();
-      const date = booking.date;
-      if (!data[date]) data[date] = [];
-      data[date].push({ ...booking, id: docSnap.id });
-    });
-    setBookings(data);
-  };
 
   useEffect(() => {
-    fetchBookings();
+    fetchClientsAndBookings();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const fetchClientsAndBookings = async () => {
+    const querySnapshot = await getDocs(collection(db, "client-estimates"));
+    const allClients = [];
+    const dateBookings = {};
 
-  const resetForm = () => {
-    setForm({
-      description: "",
-      name: "",
-      start: "",
-      end: "",
-      address: "",
-      city: "",
+    querySnapshot.forEach((docSnap) => {
+      const client = { id: docSnap.id, ...docSnap.data() };
+      allClients.push(client);
+
+      if (client.bookings) {
+        client.bookings.forEach((booking, i) => {
+          const date = booking.date;
+          if (!dateBookings[date]) dateBookings[date] = [];
+          dateBookings[date].push({ ...booking, client, bookingIndex: i });
+        });
+      }
     });
-    setEditingIndex(null);
+
+    setClients(allClients);
+    setBookings(dateBookings);
   };
 
-  //  Save to Firestore
   const handleSave = async () => {
-    if (
-      !form.description ||
-      !form.name ||
-      !form.start ||
-      !form.end ||
-      !form.address ||
-      !form.city
-    )
-      return;
+    if (!selectedClientId || !start || !end) return;
 
-    const bookingData = { ...form, date: formattedDate };
+    const bookingData = {
+      date: formattedDate,
+      start,
+      end,
+    };
 
-    if (editingIndex !== null) {
-      // Updating existing booking
-      const bookingId = todaysBookings[editingIndex].id;
-      await setDoc(doc(db, "bookings", bookingId), bookingData);
+    const clientRef = doc(db, "client-estimates", selectedClientId);
+    const clientSnap = await getDoc(clientRef);
+    const existingBookings = clientSnap.data().bookings || [];
+
+    if (editingInfo) {
+      const updatedBookings = existingBookings.map((b, i) =>
+        i === editingInfo.bookingIndex ? bookingData : b
+      );
+      await updateDoc(clientRef, { bookings: updatedBookings });
     } else {
-      // Adding new booking
-      await addDoc(collection(db, "bookings"), bookingData);
+      await updateDoc(clientRef, {
+        bookings: [...existingBookings, bookingData],
+      });
     }
 
-    await fetchBookings(); // Refresh bookings from Firestore
-    resetForm();
+    setSelectedClientId("");
+    setStart("");
+    setEnd("");
+    setEditingInfo(null);
+    await fetchClientsAndBookings();
   };
 
-  //  Edit (prefill the form)
-  const handleEdit = (index) => {
-    const booking = todaysBookings[index];
-    setForm({
-      description: booking.description,
-      name: booking.name,
-      start: booking.start,
-      end: booking.end,
-      address: booking.address,
-      city: booking.city,
-    });
-    setEditingIndex(index);
+  const handleDelete = async (userId, bookingIndex) => {
+    try {
+      const userRef = doc(db, "client-estimates", userId);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+
+      const updatedBookings = userData.bookings.filter((_, i) => i !== bookingIndex);
+
+      await updateDoc(userRef, { bookings: updatedBookings });
+      await fetchClientsAndBookings();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+    }
   };
 
-  //  Delete from Firestore
-  const handleDelete = async (index) => {
-    const bookingId = todaysBookings[index].id;
-    await deleteDoc(doc(db, "bookings", bookingId));
-    await fetchBookings(); // Refresh bookings
-    resetForm();
+  const handleEdit = (clientId, booking) => {
+    setSelectedClientId(clientId);
+    setStart(booking.start);
+    setEnd(booking.end);
+    setEditingInfo(booking);
   };
+
+  const todaysBookings = bookings[formattedDate] || [];
 
   return (
     <div className="bg-white rounded-lg shadow p-8 w-full max-w-6xl mx-auto flex space-x-6 text-black">
@@ -126,20 +125,21 @@ const CalendarWidget = () => {
           <div className="mt-3 space-y-3">
             {todaysBookings.map((b, index) => (
               <div key={index} className="border p-3 rounded bg-gray-100">
-                <p><span className="font-semibold">Description:</span> {b.description}</p>
-                <p><span className="font-semibold">Name:</span> {b.name}</p>
+                <p><span className="font-semibold">Name:</span> {b.client.firstname} {b.client.lastname}</p>
+                <p><span className="font-semibold">Email:</span> {b.client.email}</p>
+                <p><span className="font-semibold">Phone:</span> {b.client.phone}</p>
+                <p><span className="font-semibold">Address:</span> {b.client.address}</p>
+                <p><span className="font-semibold">Zip:</span> {b.client.zip}</p>
                 <p><span className="font-semibold">Time:</span> {b.start} - {b.end}</p>
-                <p><span className="font-semibold">Address:</span> {b.address}</p>
-                <p><span className="font-semibold">City:</span> {b.city}</p>
                 <div className="space-x-2 mt-2">
                   <button
-                    onClick={() => handleEdit(index)}
+                    onClick={() => handleEdit(b.client.id, b)}
                     className="bg-yellow-400 px-2 py-1 rounded"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(index)}
+                    onClick={() => handleDelete(b.client.id, b.bookingIndex)}
                     className="bg-red-400 px-2 py-1 rounded"
                   >
                     Delete
@@ -154,72 +154,43 @@ const CalendarWidget = () => {
       {/* Right side: Form */}
       <div className="w-1/2 space-y-2">
         <h3 className="text-xl font-semibold mb-2">
-          {editingIndex !== null ? "Edit Booking" : "Add Booking"}
+          {editingInfo ? "Edit Booking" : "Add Booking"}
         </h3>
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={form.description}
-          onChange={handleChange}
+
+        <select
+          value={selectedClientId}
+          onChange={(e) => setSelectedClientId(e.target.value)}
           className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="name"
-          placeholder="Customer Name"
-          value={form.name}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
+        >
+          <option value="">Select a client</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.firstname} {c.lastname} - {c.address}
+            </option>
+          ))}
+        </select>
+
         <div className="flex space-x-2">
           <input
             type="time"
-            name="start"
-            value={form.start}
-            onChange={handleChange}
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
             className="border p-2 rounded w-1/2"
           />
           <input
             type="time"
-            name="end"
-            value={form.end}
-            onChange={handleChange}
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
             className="border p-2 rounded w-1/2"
           />
         </div>
-        <input
-          type="text"
-          name="address"
-          placeholder="Address"
-          value={form.address}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={form.city}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
-        <div className="space-x-2">
-          <button
-            onClick={handleSave}
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            {editingIndex !== null ? "Update Booking" : "Add Booking"}
-          </button>
-          {editingIndex !== null && (
-            <button
-              onClick={resetForm}
-              className="bg-gray-300 px-3 py-1 rounded"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
+
+        <button
+          onClick={handleSave}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          {editingInfo ? "Update Booking" : "Add Booking"}
+        </button>
       </div>
     </div>
   );
