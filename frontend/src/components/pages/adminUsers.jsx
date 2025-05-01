@@ -1,5 +1,6 @@
 import Navbar from "../navbar.jsx"
 import Sidebar from "../sideNavbar.jsx"
+import UserTable from "../userTable.jsx";
 
 
 const AdminUsers = () => {
@@ -10,9 +11,8 @@ const AdminUsers = () => {
             <div className="w-1/4">
               <Sidebar />
             </div>
-                <div className="w-3/4 p-6">
-              <h1 className="text-white">Users Table Goes Here</h1>
-              <img src="https://www.tutorialrepublic.com/snippets/designs/user-management-data-table.png" />
+                <div className="w-3/4  pr-10 lg:pr-50">
+              <UserTable/>
             </div>
           </div>
         </div>
