@@ -1,9 +1,8 @@
-import Navbar from "../navbar.jsx"
 import Sidebar from "../sideNavbar.jsx"
-import UserTable from "../userTable.jsx";
+import Navbar from "../navbar.jsx"
+import RequestTable from "../requestsTable.jsx"
 
-
-const AdminUsers = () => {
+const AdminRequests = () => {
     return (
         <div>
           <Navbar />
@@ -11,14 +10,12 @@ const AdminUsers = () => {
             <div className="w-1/4">
               <Sidebar />
             </div>
-            <div className="w-3/4 p-6">
-              <UserTable/>
+                <div className="w-3/4 p-6">
+                <RequestTable/>
             </div>
           </div>
         </div>
-      );
-    };
+      )
+    }
 
-export default AdminUsers
-
-
+export default AdminRequests

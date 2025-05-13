@@ -4,7 +4,7 @@ import { useState } from "react"
 import { db } from "../../firebase.js"
 import {collection, addDoc} from "firebase/firestore"
 import { Link } from "react-router-dom"
-import { BadgeCheck } from "lucide-react"
+import { BadgeCheck, Asterisk } from "lucide-react"
 
 const Estimate = () => {
     const [submitted, setSubmitted] = useState(false)
@@ -14,6 +14,7 @@ const Estimate = () => {
     const handleChange = (e) => {
      setInfo(prev=>({...prev, [e.target.id]:e.target.value})) 
      console.log(info)
+     setError("")
     }
 
     const toggleForm = () => {
@@ -24,9 +25,14 @@ const Estimate = () => {
         e.preventDefault()
         setError('')
 
+        if (!info.firstname || !info.lastname || !info.email || !info.phone || !info.address || !info.zip) {
+            setError("Please fill in all required fields.");
+            return
+        }
+
         try {
-            const ref = await addDoc(collection(db, 'client-estimates'),info)
-            console.log("Estimate Info:", ref)
+            const ref = await addDoc(collection(db, 'client-requests'),info)
+            console.log("Request Info:", ref)
         } catch (err) {
             setError("There was an error submitting your request")
             console.log(err, error)
@@ -45,33 +51,33 @@ const Estimate = () => {
         <h1 className="text-gray-700 text-lg mt-15">No long term contracts. No pressure. Cancel Anytime</h1>
         <h1 className="text-black font-semibold text-2xl mb-15">Submit form for a free price estimate!</h1>
          <form className="space-y-8 m-5 text-start">
-         <h1 className="text-start text-xs font-bold">(*) indicates a required field</h1>
-         
+         <h1 className="flex text-start text-xs font-bold items-center">(<Asterisk className="text-red-700 size-2.5"/>) indicates a required field</h1>
+         {error && <h1 className="text-sm text-red-600 text-center">Please fill in all required fields.</h1>}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
          <div>
-         <label className="block mb-3">First Name*</label>
+         <label className="flex block mb-3">First Name<Asterisk className="text-red-700 size-2.5"/></label>
           <input id="firstname" name="firstName" placeholder="ex. John" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange} />
           </div>
           <div>
-          <label className="block mb-3">Last Name*</label>
+          <label className="flex block mb-3">Last Name<Asterisk className="text-red-700 size-2.5"/></label>
           <input id="lastname" name="lastName" placeholder="ex. Smith" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange} />
         </div>
             <div>
-            <label className="block mb-3">Email*</label>
-            <input id="email" placeholder="ex. johnsmith@example.com" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange}/>           
+            <label className="flex block mb-3">Email<Asterisk className="text-red-700 size-2.5"/></label>
+            <input type="email" id="email" placeholder="ex. johnsmith@example.com" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange}/>           
             </div>
             <div>
-            <label className="block mb-3">Phone Number*</label>
+            <label className="flex block mb-3">Phone Number<Asterisk className="text-red-700 size-2.5"/></label>
             <input id="phone" name="phone" placeholder="ex. (123) 456-7899" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange}/>            
             </div>
             </div>
             <div className="md:col-span-2 m-6">
-            <label className="block mb-3">Service Address*</label>
+            <label className="flex block mb-3">Service Address<Asterisk className="text-red-700 size-2.5"/></label>
             <input id="address" name="address" placeholder="ex. 1234 Example Blvd, California" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange}/>   
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
             <div className="">
-            <label className="block mb-3">Zip Code*</label>
+            <label className="flex block mb-3">Zip Code<Asterisk className="text-red-700 size-2.5"/></label>
             <input id="zip" name="zip" placeholder="ex. 91234" className="bg-white rounded-lg p-2 w-full focus:outline-hidden" required onChange={handleChange}/>            
             </div>
             <div className="">
@@ -81,7 +87,14 @@ const Estimate = () => {
             </div>
             <div className="w-full p-5">
             <label htmlFor="additional" className="block mb-2 text-black text-start">Additional Details (Optional):</label>
-            <textarea id="additional" rows="3" className="block p-2.5 w-full text-sm text-black rounded-lg bg-white focus:outline-hidden" placeholder="Anything else you would like us to know?" onChange={handleChange}/>
+            <textarea id="additional" 
+            rows="4" 
+            className="block p-2.5 w-full text-sm text-black rounded-lg bg-white focus:outline-hidden" 
+            placeholder="Tell us anything that might help! 😊 
+Let us know what days/times work for an estimate, your preferred cleaning days, and 
+any areas you'd like extra attention (fridge, windows, etc.). Pet info or anything else we should know!
+" 
+            onChange={handleChange}/>
             </div>
             </form>
             <div className="bg-green-800 rounded-2xl p-2 m-10  hover:bg-green-700">

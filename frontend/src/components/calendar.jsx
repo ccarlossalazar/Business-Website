@@ -103,7 +103,7 @@ const CalendarWidget = () => {
   const todaysBookings = bookings[formattedDate] || [];
 
   return (
-    <div className="bg-white rounded-lg shadow p-8 w-full max-w-6xl mx-auto flex space-x-6 text-black">
+    <div className="bg-white rounded-xl shadow p-8 w-full max-w-6xl mx-auto flex space-x-6 text-black ">
       {/* Left side: Calendar */}
       <div className="w-1/2">
         <Calendar
@@ -165,7 +165,7 @@ const CalendarWidget = () => {
           <option value="">Select a client</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.firstname} {c.lastname} - {c.address}
+              {c.firstname} {c.lastname}  {-c.address}
             </option>
           ))}
         </select>

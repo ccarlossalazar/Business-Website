@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, ArrowLeftToLine, LogOut, UserRoundPen, User } from 'lucide-react';
+import { LayoutDashboard, Users, ArrowLeftToLine, LogOut, UserRoundPen, ScrollText } from 'lucide-react';
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 
@@ -32,7 +32,13 @@ const Sidebar = () => {
         <Link to="/admin/users">
         <li className={`text-sm flex font-semibold px-4 py-2 items-center ${isActive("/admin/users") ? "bg-green-700 text-gray-300" : "hover:bg-green-800"}`}>
         <Users className="p-1"/>
-          <span>Users</span>
+          <span>Clients</span>
+        </li>
+        </Link>
+        <Link to="/admin/requests">
+        <li className={`text-sm flex font-semibold px-4 py-2 items-center ${isActive("/admin/requests") ? "bg-green-700 text-gray-300" : "hover:bg-green-800"}`}>
+        <ScrollText className="p-1"/>
+          <span>Requests</span>
         </li>
         </Link>
       </ul>
