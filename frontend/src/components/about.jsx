@@ -9,10 +9,10 @@ const About = () => {
         className="bg-cover bg-center bg-no-repeat py-20 px-6"
         style={{ backgroundImage: `url(${westCoast})` }}
       >
-    <h2 className="text-3xl font-bold mb-6 text-white custom-text-outline ml-25">
+    <h2 className="text-6xl font-bold mb-6 text-white custom-text-outline ml-25">
       About Us
     </h2>
-    <div className="bg-white/70 min-h-[600px] max-w-4xl mx-auto p-8 rounded-lg shadow-lg text-gray-900 flex flex-col justify-evenly">
+    <div className="text-lg bg-white/70 min-h-[600px] max-w-4xl mx-auto p-8 rounded-lg shadow-lg text-gray-900 flex flex-col justify-evenly">
 
 
           <p className="mb-4">

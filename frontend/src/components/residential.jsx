@@ -10,12 +10,12 @@ const Residential = () => {
       {/* Residential cleaning section */}
       <div className="flex flex-col md:flex-row items-center justify-between py-12 px-6 bg-[#385230]">
   <div className="md:w-1/2 flex flex-col items-center text-center space-y-16">
-    <h3 className="text-4xl font-semibold text-white">Residential cleaning</h3>
-    <p className="text-lg text-white">Residential cleaning for your busy lifestyle</p>
+    <h3 className="text-6xl font-semibold text-white">Residential cleaning</h3>
+    <p className="text-3xl text-white">Residential cleaning for your busy lifestyle</p>
     <Link to="/estimate">
-      <button className="bg-white py-2 px-6 rounded-lg text-xl text-green-800 hover:bg-green-50">
-        Get an estimate
-      </button>
+    <button className="bg-white py-5 px-10 rounded-2xl text-3xl font-bold text-green-800 hover:bg-green-100 hover:border hover:border-black">
+  Get an estimate
+</button>
     </Link>
   </div>
   <div className="md:w-1/2">
@@ -25,7 +25,7 @@ const Residential = () => {
 
       {/* Available services section */}
       <section className="py-12 px-6 bg-gray-100 text-center">
-        <h4 className="text-3xl font-semibold text-green-600 mb-10">Available weekly, bi-weekly, monthly & seasonal</h4>
+        <h4 className="text-6xl font-semibold text-green-600 mb-10">Available weekly, bi-weekly, monthly & seasonal</h4>
         <div className="flex justify-center gap-16">
           <div className="w-120">
             <img src={bathroomImage} alt="Bathroom" className="w-full h-auto rounded-lg" />
