@@ -15,6 +15,7 @@ const CalendarWidget = () => {
   const [clients, setClients] = useState([]);
   const [bookings, setBookings] = useState({});
   const [selectedClientId, setSelectedClientId] = useState("");
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState(null);
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [editingInfo, setEditingInfo] = useState(null);
@@ -34,11 +35,21 @@ const CalendarWidget = () => {
       const client = { id: docSnap.id, ...docSnap.data() };
       allClients.push(client);
 
-      if (client.bookings) {
-        client.bookings.forEach((booking, i) => {
-          const date = booking.date;
-          if (!dateBookings[date]) dateBookings[date] = [];
-          dateBookings[date].push({ ...booking, client, bookingIndex: i });
+      if (client.addresses) {
+        client.addresses.forEach((address, addrIndex) => {
+          if (address.bookings) {
+            address.bookings.forEach((booking, bookingIndex) => {
+              const date = booking.date;
+              if (!dateBookings[date]) dateBookings[date] = [];
+              dateBookings[date].push({
+                ...booking,
+                client,
+                address,
+                addressIndex: addrIndex,
+                bookingIndex,
+              });
+            });
+          }
         });
       }
     });
@@ -48,7 +59,7 @@ const CalendarWidget = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedClientId || !start || !end) return;
+    if (!selectedClientId || start === "" || end === "" || selectedAddressIndex === null) return;
 
     const bookingData = {
       date: formattedDate,
@@ -58,35 +69,43 @@ const CalendarWidget = () => {
 
     const clientRef = doc(db, "client-estimates", selectedClientId);
     const clientSnap = await getDoc(clientRef);
-    const existingBookings = clientSnap.data().bookings || [];
+    const clientData = clientSnap.data();
+
+    const updatedAddresses = [...clientData.addresses];
+    const address = updatedAddresses[selectedAddressIndex];
+    const existingBookings = address.bookings || [];
 
     if (editingInfo) {
-      const updatedBookings = existingBookings.map((b, i) =>
+      address.bookings = existingBookings.map((b, i) =>
         i === editingInfo.bookingIndex ? bookingData : b
       );
-      await updateDoc(clientRef, { bookings: updatedBookings });
     } else {
-      await updateDoc(clientRef, {
-        bookings: [...existingBookings, bookingData],
-      });
+      address.bookings = [...existingBookings, bookingData];
     }
 
+    updatedAddresses[selectedAddressIndex] = address;
+    await updateDoc(clientRef, { addresses: updatedAddresses });
+
     setSelectedClientId("");
+    setSelectedAddressIndex(null);
     setStart("");
     setEnd("");
     setEditingInfo(null);
     await fetchClientsAndBookings();
   };
 
-  const handleDelete = async (userId, bookingIndex) => {
+  const handleDelete = async (userId, addressIndex, bookingIndex) => {
     try {
       const userRef = doc(db, "client-estimates", userId);
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data();
 
-      const updatedBookings = userData.bookings.filter((_, i) => i !== bookingIndex);
+      const updatedAddresses = [...userData.addresses];
+      const address = updatedAddresses[addressIndex];
+      address.bookings = address.bookings.filter((_, i) => i !== bookingIndex);
+      updatedAddresses[addressIndex] = address;
 
-      await updateDoc(userRef, { bookings: updatedBookings });
+      await updateDoc(userRef, { addresses: updatedAddresses });
       await fetchClientsAndBookings();
     } catch (error) {
       console.error("Error deleting booking:", error);
@@ -95,6 +114,7 @@ const CalendarWidget = () => {
 
   const handleEdit = (clientId, booking) => {
     setSelectedClientId(clientId);
+    setSelectedAddressIndex(booking.addressIndex);
     setStart(booking.start);
     setEnd(booking.end);
     setEditingInfo(booking);
@@ -128,8 +148,8 @@ const CalendarWidget = () => {
                 <p><span className="font-semibold">Name:</span> {b.client.firstname} {b.client.lastname}</p>
                 <p><span className="font-semibold">Email:</span> {b.client.email}</p>
                 <p><span className="font-semibold">Phone:</span> {b.client.phone}</p>
-                <p><span className="font-semibold">Address:</span> {b.client.address}</p>
-                <p><span className="font-semibold">Zip:</span> {b.client.zip}</p>
+                <p><span className="font-semibold">Address:</span> {b.address.address}</p>
+                <p><span className="font-semibold">Zip:</span> {b.address.zip}</p>
                 <p><span className="font-semibold">Time:</span> {b.start} - {b.end}</p>
                 <div className="space-x-2 mt-2">
                   <button
@@ -139,7 +159,7 @@ const CalendarWidget = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(b.client.id, b.bookingIndex)}
+                    onClick={() => handleDelete(b.client.id, b.addressIndex, b.bookingIndex)}
                     className="bg-red-400 px-2 py-1 rounded"
                   >
                     Delete
@@ -159,16 +179,34 @@ const CalendarWidget = () => {
 
         <select
           value={selectedClientId}
-          onChange={(e) => setSelectedClientId(e.target.value)}
+          onChange={(e) => {
+            setSelectedClientId(e.target.value);
+            setSelectedAddressIndex(null);
+          }}
           className="border p-2 rounded w-full"
         >
           <option value="">Select a client</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.firstname} {c.lastname}  {-c.address}
+              {c.firstname} {c.lastname}
             </option>
           ))}
         </select>
+
+        {selectedClientId && (
+          <select
+            value={selectedAddressIndex ?? ""}
+            onChange={(e) => setSelectedAddressIndex(parseInt(e.target.value))}
+            className="border p-2 rounded w-full"
+          >
+            <option value="">Select an address</option>
+            {clients.find(c => c.id === selectedClientId)?.addresses?.map((addr, idx) => (
+              <option key={idx} value={idx}>
+                {addr.address}, {addr.zip}
+              </option>
+            ))}
+          </select>
+        )}
 
         <div className="flex space-x-2">
           <input
