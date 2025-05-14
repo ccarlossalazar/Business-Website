@@ -1,9 +1,10 @@
 import {DataGrid} from '@mui/x-data-grid'
 import { db } from "./../firebase.js"
-import {collection, getDocs, addDoc, deleteDoc, doc, query, where} from 'firebase/firestore'
+import {collection, getDocs, addDoc, deleteDoc, doc} from 'firebase/firestore'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import { X } from 'lucide-react'
 
 
 const RequestTable = () => {
@@ -32,13 +33,13 @@ const getClients = async () => {
   getClients()
 },[])
     const columns = [
-        {field: 'firstname', headerName: 'First Name', width: 100},
-        {field: 'lastname', headerName: 'Last Name', width: 100},
-        {field: 'phone', headerName: 'Phone', width: 130},
-        {field: 'unit', headerName: 'Unit', width: 50},
-        {field: 'email', headerName: 'Email', width: 150},
-        {field: 'address', headerName: 'Address', width: 150},
-        {field: 'zip', headerName: 'Zip', width: 100},
+        {field: 'firstname', headerName: 'First Name', flex: 1},
+        {field: 'lastname', headerName: 'Last Name', flex: 1},
+        {field: 'phone', headerName: 'Phone', flex: 1},
+        {field: 'email', headerName: 'Email', flex: 2},
+        {field: 'address', headerName: 'Address', flex: 2},
+        {field: 'zip', headerName: 'Zip', flex: 1},
+        {field: 'unit', headerName: 'Unit', width: 1},
     ]
 
     const actionColumn = [
@@ -77,52 +78,63 @@ const getClients = async () => {
     const handleClick = async (client) => {
         setError('')
         try {
-            let conditions = [
-                where("address", "==", client.address),
-                where("zip", "==", client.zip)
-              ];
-              
-              if (client.unit) {
-                conditions.push(where("unit", "==", client.unit));
+            const checkAllClients = await getDocs(collection(db, "client-estimates"))
+            let matchingClient = null
+
+            for (const docSnap of checkAllClients.docs) {
+                const data = docSnap.data();
+          
+                // Check email
+                if (data.email === client.email) {
+                  setError("A user with this email already exists.");
+                  setMessage("Click for more information:");
+                  setData(data);
+                  setNewClient(client);
+                  return;
+                }
+          
+                if (data.phone === client.phone) {
+                  setError("A user with this phone number already exists.");
+                  setMessage("Click view to edit if this is a mistake. Then try again.");
+                  setData(data);
+                  setNewClient(client);
+                  return;
+                }
+                const addresses = data.addresses || [];
+                const match = addresses.find((addr) => 
+                  addr.address === client.address &&
+                  addr.zip === client.zip &&
+                  (client.unit ? addr.unit === client.unit : true) // optional unit match
+                );
+          
+                if (match) {
+                  matchingClient = data;
+                  break;
+                }
               }
-              
-              const addressQuery = query(collection(db, "client-estimates"), ...conditions)
-
-             const checkEmail = query(collection(db, "client-estimates"), where("email", "==", client.email))
-             const checkPhone = query(collection(db, "client-estimates"), where("phone", "==", client.phone))
-
-             const emailRef = await getDocs(checkEmail)
-             const phoneRef = await getDocs(checkPhone)
-             const addressRef = await getDocs(addressQuery)
-
-            
-    if (!emailRef.empty) {
-        setError("A user with this email already exists.");
-        setMessage("Click for more information:") 
-        setData(emailRef.docs[0].data())
-        setNewClient(client)
-        return
-      }
-  
-      if (!phoneRef.empty) {
-        setError("A user with this phone number already exists.");
-        setMessage("Click view to edit if this is a mistake. Then try again.") 
-        setData(phoneRef.docs[0].data())
-        setNewClient(client)
-        return
-      }
-
-      if(!addressRef.empty) {
-        setError("A user with this address already exists.")
-        setMessage("Click here to add an additional address to this user: ") 
-        setData(addressRef.docs[0].data())
-        setNewClient(client)
-        return
-      }
-  
+          
+              if (matchingClient) {
+                setError("A user with this address already exists.");
+                setMessage("Click here to add an additional address to this user:");
+                setData(matchingClient);
+                setNewClient(client);
+                return;
+              }
       
-            const {id, ...rest} = client
-            const ref = await addDoc(collection(db, 'client-estimates'), rest)
+            const {id, address, zip, unit, additional, ...rest} = client
+
+            const newClient = {
+                ...rest, 
+                addresses: [
+                {
+                    address,
+                    zip, 
+                    unit: unit || "",
+                    additional: additional || ""
+                }
+                ]
+            }
+            const ref = await addDoc(collection(db, 'client-estimates'), newClient)
             await deleteDoc(doc(db, 'client-requests', client.id))
             console.log("New user Info:", ref)
             setInfo(prev => prev.filter(item => item.id !== client.id));
@@ -154,23 +166,37 @@ const getClients = async () => {
         setNewAddress(!newAddress)
     }
 
+    const closeAll = () => {
+        setNewAddress(false)
+        setAdditional(false)
+    }
+
     return (
     <div className='relative'>
 {additional && (
-  <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
-    <div className="bg-white relative flex-col p-6 rounded shadow-lg w-full h-4/7">
+  <div className="absolute inset-0 z-40 flex items-center justify-center backdrop-blur-xs">
+    <div className="bg-white relative flex-col p-6 rounded shadow-lg w-full h-auto pb-30">
     <h1 className="text-xl font-bold">Information:</h1>
-    <h1 className='text-xs pb-5 text-yellow-700'>* if there is a mistake click view to make edits then approve user. If you would like to add a new address to an existing user click Add Address</h1>
-      <div className='flex justify-center gap-30'>
-      <div>
+    <h1 className='text-xs pb-5 text-yellow-700'>* if there is a mistake click view to make edits then approve user. If you would like to add a new address to this existing user click "Add Address"</h1>
+      <div className='flex justify-center gap-50'>
+      <div className=''>
         <span className='font-bold text-green-800'>Existing User Information:</span>
         <h1>{data.firstname} {data.lastname}</h1>
         <h1>{data.email}</h1>
         <h1>{data.phone}</h1>
-        <h1>{data.address}, {data.zip}</h1>
-        <h1>{data.unit}</h1>
+        {data.addresses && data.addresses.length > 0 ? (
+    data.addresses.map((addr, index) => (
+      <div key={index} className="mt-2 pt-2">
+        <h2 className="font-semibold text-sm">Address {index + 1}:</h2>
+        <p>{addr.address}{addr.unit ? `, Unit ${addr.unit}` : ''}</p>
+        <p>{addr.zip}</p>
       </div>
-      <div>
+    ))
+  ) : (
+    <p className="text-sm italic">No addresses found.</p>
+  )}
+      </div>
+      <div className=''>
         <span className='font-bold text-green-800'>New User Information:</span>
         <h1>{newClient.firstname} {newClient.lastname}</h1>
         <h1>{newClient.email}</h1>
@@ -202,7 +228,7 @@ const getClients = async () => {
     <input></input>
     </div>
     </form>
-    <button onClick={toggleNewAddress} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded">Close</button>
+    <button onClick={closeAll} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded">Close</button>
     <button onClick={toggleNewAddress} className="absolute bottom-5 right-5 mt-4 px-4 py-2 bg-green-500 text-white rounded">Submit</button>
     </div>
   </div>
@@ -210,7 +236,8 @@ const getClients = async () => {
     <div className='flex flex-col items-center justify-center relative'>
     {error &&
   <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
-  <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
+  <div className="relative bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
+    <X className='absolute right-0 top-0 hover:text-red-500'/>
     <div className="text-red-500 mb-4">
       <h1 className="font-semibold text-lg">{error}</h1>
       {message && <h1 className="text-gray-700 mt-2">{message}</h1>}

@@ -20,7 +20,7 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="w-48 h-screen bg-green-900 text-white fixed top-20 left-0 pt-20">
+    <div className="w-48 h-full bg-green-900 text-white fixed top-20 left-0 pt-30">
       <ul>
       <p className="text-xs font-bold ml-3 text-green-300">NAVIGATION</p>
         <Link to="/admin/dashboard">
