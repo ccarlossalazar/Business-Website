@@ -1,6 +1,6 @@
 import {DataGrid} from '@mui/x-data-grid'
 import { db } from "./../firebase.js"
-import {collection, getDocs, addDoc, deleteDoc, doc} from 'firebase/firestore'
+import {collection, getDocs, addDoc, deleteDoc, doc, updateDoc} from 'firebase/firestore'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
@@ -15,6 +15,7 @@ const RequestTable = () => {
   const [data, setData] = useState(null)
   const [newClient, setNewClient] = useState(null);
   const [newAddress, setNewAddress] = useState(false)
+
 
   const navigate = useNavigate()
 
@@ -84,18 +85,17 @@ const getClients = async () => {
             for (const docSnap of checkAllClients.docs) {
                 const data = docSnap.data();
           
-                // Check email
                 if (data.email === client.email) {
-                  setError("A user with this email already exists.");
-                  setMessage("Click for more information:");
+                  setError("A user with this email already exists.")
+                  setMessage("Click here to add an additional address to this user:")
                   setData(data);
                   setNewClient(client);
                   return;
                 }
           
                 if (data.phone === client.phone) {
-                  setError("A user with this phone number already exists.");
-                  setMessage("Click view to edit if this is a mistake. Then try again.");
+                  setError("A user with this phone number already exists.")
+                  setMessage("Click here to add an additional address to this user:")
                   setData(data);
                   setNewClient(client);
                   return;
@@ -104,7 +104,7 @@ const getClients = async () => {
                 const match = addresses.find((addr) => 
                   addr.address === client.address &&
                   addr.zip === client.zip &&
-                  (client.unit ? addr.unit === client.unit : true) // optional unit match
+                  (client.unit ? addr.unit === client.unit : true)
                 );
           
                 if (match) {
@@ -114,8 +114,8 @@ const getClients = async () => {
               }
           
               if (matchingClient) {
-                setError("A user with this address already exists.");
-                setMessage("Click here to add an additional address to this user:");
+                setError("A user with this address already exists.")
+                setMessage("Click view to edit if this is a mistake or Click here for more information.")
                 setData(matchingClient);
                 setNewClient(client);
                 return;
@@ -157,6 +157,32 @@ const getClients = async () => {
         }
     }
 
+    const handleNewAddress = async () => {
+        const additionalAddress = {
+            address: newClient.address,
+            zip: newClient.zip,
+            unit: newClient.unit || "",
+            additional: newClient.additional || ""
+        }
+
+        try {
+            const ref = doc(db, "client-estimates", data.id)
+            const currentAddresses = data.addresses || []
+
+            await updateDoc(ref, {
+                addresses:[...currentAddresses, additionalAddress]
+            })
+
+            setNewAddress(false)
+            setAdditional(false)
+            setError('')
+            setMessage('')
+        } catch (err) {
+            console.error("Failed to add additonal address", err)
+            setError("Error adding new address")
+        }
+    }
+
     const toggleAdditional = () => {
         setAdditional(!additional)
         setError('')
@@ -171,8 +197,14 @@ const getClients = async () => {
         setAdditional(false)
     }
 
+    const closeMessage = () => {
+        setError('')
+        setMessage('')
+    }
+
     return (
-    <div className='relative'>
+    <div className=''>
+    <div className='relative w-full'>
 {additional && (
   <div className="absolute inset-0 z-40 flex items-center justify-center backdrop-blur-xs">
     <div className="bg-white relative flex-col p-6 rounded shadow-lg w-full h-auto pb-30">
@@ -205,8 +237,8 @@ const getClients = async () => {
         <h1>{newClient.unit}</h1>
       </div>
       </div>
-      <button onClick={toggleAdditional} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded">Close</button>
-      <button onClick={toggleNewAddress} className="absolute bottom-5 right-5 mt-4 px-4 py-2 bg-blue-500 text-white rounded">Add Address</button>
+      <button onClick={toggleAdditional} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Close</button>
+      <button onClick={toggleNewAddress} className="absolute bottom-5 right-5 mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Address</button>
     </div>
   </div>
 )}
@@ -214,30 +246,34 @@ const getClients = async () => {
   <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
     <div className="bg-white relative flex-col p-6 rounded shadow-lg w-full h-4/7">
     <h1 className="text-xl font-bold pb-5">Add New Address For {data.firstname} {data.lastname}:</h1>
-    <form className='space-y-5'>
-    <div>    
+    <form className='space-y-5 w-full'>
+    <div className='space-x-2'>    
     <label>Address:</label>
-    <input></input>
+    <input className="border-b-2 border-b-gray-300  focus-within:border-b-green-500 space-x-1 focus:outline-none field-sizing-content" value={newClient.address}></input>
     </div>
-    <div>    
+    <div className='space-x-2'>    
     <label>Zip Code:</label>
-    <input></input>
+    <input className="border-b-2 border-b-gray-300  focus-within:border-b-green-500 space-x-1 focus:outline-none field-sizing-content" value={newClient.zip}></input>
     </div>
-    <div>    
+    <div className='space-x-2'>    
     <label>Unit (optional):</label>
-    <input></input>
+    <input className="border-b-2 border-b-gray-300  focus-within:border-b-green-500 space-x-1 focus:outline-none field-sizing-content" value={newClient.unit}></input>
+    </div>
+    <div className='space-x-2 flex w-full'>    
+    <label>Additional Details (optional):</label>
+    <textarea rows="4" value={newClient.additional}></textarea>
     </div>
     </form>
-    <button onClick={closeAll} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded">Close</button>
-    <button onClick={toggleNewAddress} className="absolute bottom-5 right-5 mt-4 px-4 py-2 bg-green-500 text-white rounded">Submit</button>
+    <button onClick={closeAll} className="absolute bottom-5 mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Close</button>
+    <button onClick={handleNewAddress} className="absolute bottom-5 right-5 mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Submit</button>
     </div>
   </div>
 )}
     <div className='flex flex-col items-center justify-center relative'>
     {error &&
-  <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
+  <div className="absolute inset-0 z-30 flex items-center justify-center backdrop-blur-xs">
   <div className="relative bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
-    <X className='absolute right-0 top-0 hover:text-red-500'/>
+    <X onClick={closeMessage} className='absolute right-0 top-0 hover:text-red-500'/>
     <div className="text-red-500 mb-4">
       <h1 className="font-semibold text-lg">{error}</h1>
       {message && <h1 className="text-gray-700 mt-2">{message}</h1>}
@@ -261,6 +297,7 @@ const getClients = async () => {
         />
         </div>
     </div>
+        </div>
         </div>
     ) 
 }

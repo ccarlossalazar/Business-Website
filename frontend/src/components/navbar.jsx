@@ -74,13 +74,13 @@ const Navbar = () => {
 
         {/* Mobile Menu Drawer */}
         {menuDrawerUp && (
-          <div className="fixed right-0 z-20 bg-white w-full p-5 flex flex-col justify-center items-center lg:hidden">
+          <div className="fixed right-0 z-20 bg-white w-full pb-10 flex flex-col justify-center items-center lg:hidden">
             <ul className="text-lg font-semibold text-[#558000] space-y-4 ">
-              <li className='hover:text-green-600'><a href="#residential">Residential</a></li>
-              <li className='hover:text-green-600'><a href="#commercial">Commercial</a></li>
-              <li className='hover:text-green-600'><a href="#detailed">Detailed Cleanings</a></li>
-              <li className='hover:text-green-600'><a href="#about">About</a></li>
-              <li className='hover:text-green-600'><a href="#contact">Contact</a></li>
+              <li className='hover:text-green-900'><a href="#residential">Residential</a></li>
+              <li className='hover:text-green-900'><a href="#commercial">Commercial</a></li>
+              <li className='hover:text-green-900'><a href="#detailed">Detailed Cleanings</a></li>
+              <li className='hover:text-green-900'><a href="#about">About</a></li>
+              <li className='hover:text-green-900'><a href="#contact">Contact</a></li>
               {user && (
                 <li><Link to="/admin/dashboard" className="hover:text-green-600">Admin</Link></li>
               )}

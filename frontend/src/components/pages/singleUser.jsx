@@ -98,7 +98,7 @@ const SingleUser = () => {
                    {info.addresses && info.addresses.length > 0 ? (
     info.addresses.map((addr, index) => (
     <div className="">
-      <div key={index} className="mt-2 pt-2 border-2 w-fit">
+      <div key={index} className="mt-2 pt-2 w-fit">
         <h2 className="font-semibold text-lg">Address {index + 1}:</h2>
         <div className="flex text-lg space-x-2">
         <p className="font-semibold">Street:</p>
